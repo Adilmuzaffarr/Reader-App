@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#1f6f5c" />
+  <title>Urdu Reader — اردو ریڈر</title>
+  <link rel="icon" href="icon.svg" type="image/svg+xml" />
+  <link rel="apple-touch-icon" href="icon-192.png" />
+</head>
+<body>
+  <!-- LIBRARY -->
+  <main id="library" class="view">
+    <header class="bar">
+      <h1 class="brand"><span class="brand-ur">اردو ریڈر</span> <small data-i18n="appName">Urdu Reader</small></h1>
+      <div class="bar-actions">
+        <button id="lang-toggle" class="btn ghost" title="Language"></button>
+        <button id="import-btn" class="btn primary"><span data-i18n="addBooks">Add books</span></button>
+      </div>
+    </header>
+    <div class="lib-tools">
+      <input id="lib-search" type="search" data-i18n-ph="searchLibrary" placeholder="Search library" />
+    </div>
+    <section id="shelf" class="shelf"></section>
+    <section id="empty" class="empty" hidden>
+      <div class="empty-art">📖</div>
+      <h2 data-i18n="emptyTitle">Your library is empty</h2>
+      <p data-i18n="emptyHint">Add EPUB or PDF books. You can also drag and drop files here.</p>
+      <button id="import-btn2" class="btn primary" data-i18n="addBooks">Add books</button>
+    </section>
+    <input id="file-input" type="file" accept=".epub,.pdf,application/epub+zip,application/pdf" multiple hidden />
+    <div id="drop-overlay" hidden><span data-i18n="dropHere">Drop books to add them</span></div>
+  </main>
+
+  <!-- READER -->
+  <main id="reader" class="view" hidden>
+    <header class="bar reader-bar" id="reader-top">
+      <button id="back-btn" class="btn icon" aria-label="Back">←</button>
+      <div class="reader-title" id="reader-title"></div>
+      <div class="bar-actions">
+        <button id="toc-btn" class="btn icon" aria-label="Contents">☰</button>
+        <button id="search-btn" class="btn icon" aria-label="Search">⌕</button>
+        <button id="mark-btn" class="btn icon" aria-label="Bookmark">☆</button>
+        <button id="set-btn" class="btn icon" aria-label="Settings">Aa</button>
+      </div>
+    </header>
+
+    <div id="stage" class="stage">
+      <div id="viewer" class="viewer"></div>
+      <div id="loading" class="loading" hidden></div>
+    </div>
+
+    <footer class="reader-foot" id="reader-bottom">
+      <input id="seek" type="range" min="0" max="1000" value="0" />
+      <div class="foot-row">
+        <span id="foot-left"></span>
+        <span id="foot-right"></span>
+      </div>
+    </footer>
+
+    <!-- side panels -->
+    <aside id="panel-toc" class="panel" hidden>
+      <div class="panel-head">
+        <div class="tabs">
+          <button class="tab active" data-tab="toc" data-i18n="contents">Contents</button>
+          <button class="tab" data-tab="marks" data-i18n="bookmarks">Bookmarks</button>
+        </div>
+        <button class="btn icon close" data-close>✕</button>
+      </div>
+      <div id="toc-list" class="list"></div>
+      <div id="marks-list" class="list" hidden></div>
+    </aside>
+
+    <aside id="panel-search" class="panel" hidden>
+      <div class="panel-head">
+        <form id="search-form" class="search-form">
+          <input id="search-input" type="search" data-i18n-ph="searchBook" placeholder="Search in book" />
+        </form>
+        <button class="btn icon close" data-close>✕</button>
+      </div>
+      <div id="search-list" class="list"></div>
+    </aside>
+
+    <aside id="panel-settings" class="sheet" hidden>
+      <div class="panel-head">
+        <strong data-i18n="display">Display</strong>
+        <button class="btn icon close" data-close>✕</button>
+      </div>
+      <div id="settings-body" class="settings-body"></div>
+    </aside>
+  </main>
+
+  <div id="toast" class="toast" hidden></div>
+  <script type="module" src="/src/main.js"></script>
+</body>
+</html>
