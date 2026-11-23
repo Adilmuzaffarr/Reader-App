@@ -129,3 +129,57 @@ input{font:inherit;color:inherit}
   .viewer{inset:10px 12px}
 }
 @media (prefers-reduced-motion:reduce){*{transition:none !important}}
+
+/* library: sort, chips, card actions */
+.lib-tools{display:flex;gap:8px;max-width:640px}
+.lib-tools input{flex:1}
+.lib-tools select{padding:9px 10px;border:1px solid var(--line);border-radius:12px;background:var(--surface);color:var(--fg)}
+.chips{display:flex;gap:6px;overflow-x:auto;padding:10px 14px 0;scrollbar-width:none}
+.chips:empty{display:none}
+.chip{flex:none;border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:5px 14px;font-size:.85rem}
+.chip.on{background:var(--accent);color:var(--accent-fg);border-color:var(--accent)}
+.acts{position:absolute;inset-inline:6px;bottom:6px;display:flex;gap:6px;justify-content:flex-end;opacity:0;transition:.15s}
+.card:hover .acts,.card:focus-within .acts{opacity:1}
+@media (hover:none){.acts{opacity:1}}
+.act{border:0;border-radius:8px;background:rgba(0,0,0,.68);color:#fff;font-size:.72rem;padding:5px 8px;font-weight:600}
+.cat-tag{font-size:.7rem;color:var(--accent);font-weight:600}
+
+/* selection popover */
+.pop{position:fixed;z-index:60;background:var(--surface);color:var(--fg);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);padding:6px;display:flex;flex-direction:column;gap:4px;max-width:calc(100vw - 16px)}
+.swatches{display:flex;gap:8px;padding:4px 6px;justify-content:center}
+.sw{width:28px;height:28px;border-radius:50%;border:2px solid transparent;padding:0}
+.sw.on{border-color:var(--fg)}
+.pop-acts{display:flex;justify-content:space-around;border-top:1px solid var(--line);padding-top:4px}
+.pop-acts button{border:0;background:transparent;font-size:1.1rem;min-width:40px;height:36px;border-radius:8px}
+.pop-acts button:hover{background:color-mix(in srgb,var(--fg) 8%,transparent)}
+
+/* notes list */
+.note-row{display:flex;gap:10px;padding:10px 14px;border-bottom:1px solid var(--line);align-items:flex-start;cursor:pointer}
+.note-row:hover{background:color-mix(in srgb,var(--fg) 5%,transparent)}
+.note-bar{flex:none;width:4px;align-self:stretch;border-radius:4px}
+.note-body{flex:1;min-width:0}
+.note-text{font-family:'UR Naskh',serif;line-height:1.9;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.note-note{font-size:.88rem;color:var(--muted);margin-top:4px;white-space:pre-wrap;border-inline-start:2px solid var(--line);padding-inline-start:8px}
+.note-chap{font-size:.72rem;color:var(--muted);margin-top:4px}
+.note-tools{display:flex;gap:8px;padding:10px 14px;border-bottom:1px solid var(--line)}
+.note-tools .btn{flex:1;font-size:.85rem;padding:7px 8px}
+.hint .btn{margin-top:10px}
+
+/* dialog, busy */
+dialog{border:1px solid var(--line);border-radius:16px;background:var(--surface);color:var(--fg);padding:18px;width:min(420px,92vw);box-shadow:var(--shadow)}
+dialog::backdrop{background:rgba(0,0,0,.45)}
+dialog h3{margin:0 0 12px;font-size:1rem}
+dialog input,dialog textarea{width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:var(--bg);font:inherit;color:inherit;resize:vertical}
+.dlg-btns{display:flex;gap:8px;margin-top:14px;align-items:center}.grow{flex:1}
+.btn.danger{color:#c0392b}
+.busy{position:fixed;inset:0;z-index:90;background:rgba(0,0,0,.55);display:grid;place-content:center;justify-items:center;gap:14px;color:#fff;font-weight:600}
+.spinner{width:38px;height:38px;border-radius:50%;border:4px solid rgba(255,255,255,.3);border-top-color:#fff;animation:spin 1s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* margins + two-page spread */
+.viewer{inset:14px var(--mx,18px)}
+@media (max-width:520px){.viewer{inset:10px var(--mx,18px)}}
+.viewer.spread::after{content:'';position:absolute;top:0;bottom:0;left:50%;width:56px;transform:translateX(-50%);pointer-events:none;z-index:3;
+  background:linear-gradient(90deg,transparent,rgba(0,0,0,.13) 48%,rgba(0,0,0,.2) 50%,rgba(0,0,0,.13) 52%,transparent)}
+:root[data-theme=dark] .viewer.spread::after,:root[data-theme=black] .viewer.spread::after{background:linear-gradient(90deg,transparent,rgba(0,0,0,.45) 50%,transparent)}
+.viewer.spread::before{content:'';position:absolute;inset:0;z-index:0;pointer-events:none}

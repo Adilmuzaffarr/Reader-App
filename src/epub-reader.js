@@ -6,15 +6,18 @@ const ARABIC = /[؀-ۿݐ-ݿﭐ-﷿ﹰ-﻿]/g;
 const LATIN = /[A-Za-z]/g;
 
 export class EpubReader {
-  constructor(el, { onProgress, onTap }) {
+  constructor(el, { onProgress, onTap, onSelect, onHighlight }) {
+    this.onSelect = onSelect || (() => {});
+    this.onHighlight = onHighlight || (() => {});
     this.el = el;
     this.onProgress = onProgress;
     this.onTap = onTap;
     this.kind = 'epub';
   }
 
-  async open(blob, { settings, location, rtl }) {
+  async open(blob, { settings, location, rtl, annots }) {
     this.settings = settings;
+    this.annots = annots || [];
     this.book = ePub(await blob.arrayBuffer());
     await this.book.ready;
     const meta = this.book.packaging?.metadata || {};
@@ -55,7 +58,8 @@ export class EpubReader {
       width: '100%',
       height: '100%',
       flow: scroll ? 'scrolled-doc' : 'paginated',
-      spread: 'none',
+      spread: scroll || this.settings.spread === 'single' ? 'none' : 'auto',
+      minSpreadWidth: 900,
       manager: 'default',
       defaultDirection: this.rtl ? 'rtl' : 'ltr',
       allowScriptedContent: false,
@@ -71,11 +75,22 @@ export class EpubReader {
       this.bindInput(contents);
     });
 
+    this.rendition.on('selected', (cfiRange, contents) => {
+      const range = contents.range(cfiRange);
+      const r = range.getBoundingClientRect();
+      const f = contents.document.defaultView.frameElement.getBoundingClientRect();
+      this.onSelect({
+        cfiRange, contents, text: range.toString().trim(),
+        rect: { left: f.left + r.left, right: f.left + r.right, top: f.top + r.top, bottom: f.top + r.bottom },
+      });
+    });
     this.rendition.on('relocated', (loc) => {
+      this.onSelect(null);
       this.current = loc;
       this.emit(loc);
     });
     this.rendition.display(location || undefined);
+    this.setHighlights(this.annots || []);
   }
 
   css() {
@@ -97,8 +112,30 @@ img{${th.img}}
 ::selection{background:${th.sel};}`;
   }
 
+  hlStyle() {
+    const dark = this.settings.theme === 'dark' || this.settings.theme === 'black';
+    return { 'fill-opacity': dark ? '0.4' : '0.55', 'mix-blend-mode': dark ? 'normal' : 'multiply' };
+  }
+
+  // Colours are tuned per theme so highlights stay legible in light, sepia and dark.
+  setHighlights(list) {
+    this.annots = list;
+    if (!this.rendition) return;
+    for (const a of this.drawn || []) this.rendition.annotations.remove(a, 'highlight');
+    this.drawn = [];
+    const pal = HL[this.settings.theme] || HL.light;
+    for (const a of list) {
+      this.rendition.annotations.highlight(a.cfi, { id: a.id }, (e) => this.onHighlight(a.id, e), 'ur-hl', { fill: pal[a.color] || pal.yellow, ...this.hlStyle() });
+      this.drawn.push(a.cfi);
+    }
+  }
+
+  pctOf(cfi) { return this.ready ? this.book.locations.percentageFromCfi(cfi) : null; }
+
   applySettings(s) {
+    const retint = this.settings.theme !== s.theme;
     this.settings = s;
+    if (retint) this.setHighlights(this.annots || []);
     this.rendition?.getContents().forEach((c) => {
       const el = c.document.getElementById('ur-style');
       if (el) el.textContent = this.css();
@@ -128,6 +165,7 @@ img{${th.img}}
       if (moved) { moved = false; return; }
       if (d.getSelection()?.toString()) return;
       if (e.target.closest?.('a[href]')) return;
+      this.onSelect(null);
       const x = (frame().left + e.clientX) / window.innerWidth;
       this.onTap(x < 0.28 ? 'left' : x > 0.72 ? 'right' : 'center');
     });
@@ -206,3 +244,12 @@ export const THEMES = {
   dark: { bg: '#1d2126', fg: '#d8d4cc', link: '#7fd0b5', sel: '#2f5a4c', img: 'filter:brightness(.85);' },
   black: { bg: '#000000', fg: '#c9c5bd', link: '#7fd0b5', sel: '#244a3d', img: 'filter:brightness(.8);' },
 };
+
+// Highlight palette per theme (same five hues, retuned for each background).
+export const HL = {
+  light: { yellow: '#ffd54f', green: '#81c784', blue: '#64b5f6', pink: '#f48fb1', purple: '#b39ddb' },
+  sepia: { yellow: '#f2b83c', green: '#7fb069', blue: '#6fa3d8', pink: '#e68aa0', purple: '#a58bd0' },
+  dark: { yellow: '#d9b23a', green: '#48a868', blue: '#4a8fd6', pink: '#d4608c', purple: '#8a6fd4' },
+  black: { yellow: '#d9b23a', green: '#48a868', blue: '#4a8fd6', pink: '#d4608c', purple: '#8a6fd4' },
+};
+export const HL_COLORS = ['yellow', 'green', 'blue', 'pink', 'purple'];

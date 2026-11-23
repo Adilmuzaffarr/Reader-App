@@ -9,6 +9,10 @@ An offline-capable web app (installable PWA) for reading **EPUB** and **PDF** bo
 - Adjustable text size and line spacing, paged or scroll layout, Light / Sepia / Dark / Black themes (PDFs get dark mode too).
 - Contents, bookmarks, in-book search, reading-progress slider, resume where you left off.
 - Tap left/right edges, swipe, or arrow keys to turn pages; tap the centre to show/hide controls.
+- **Highlights & notes** (EPUB): select text → floating menu with 5 colours, note, copy, dictionary (Wiktionary) and in-book search. Highlight colours retune per theme. Tap a highlight to recolour, edit the note or delete. Notes tab lists everything; export to Markdown or copy.
+- **Reading layout:** adjustable margins, and a two-page spread with a centre gutter shadow on wide screens (RTL-aware).
+- **Library:** custom shelves/categories, filters (Reading / Unread / Finished), sort, "last read" times.
+- **PDF → EPUB:** rebuilds a PDF's text layer into a reflowable EPUB (RTL, chapters from headings or every 8 pages, cover from page 1, running headers/page numbers stripped) so fonts, highlights and notes work.
 - UI in English or اردو.
 
 ## Run
@@ -20,5 +24,8 @@ npm run build && npm run preview   # production build (service worker / install 
 Host the `dist/` folder on any static host (GitHub Pages, Netlify, …) and "Add to Home Screen" on your phone.
 
 ## Notes
+- PDF → EPUB needs a PDF with a real text layer. Scanned PDFs, or PDFs whose Urdu font has no text mapping, produce no usable text; the app says so instead of producing a broken book. OCR is not included yet.
+- Wi-Fi transfer from a computer isn't possible in a browser app; use the Add button, drag & drop, or "Open with…" after installing.
+- Cloud sync is not implemented (everything stays on the device).
 - PDF text search only works on PDFs with a real text layer; scanned/image PDFs and some InPage exports can't be searched.
 - PDFs are shown as images of the page, so font/spacing settings apply to EPUBs only.

@@ -20,7 +20,13 @@
     </header>
     <div class="lib-tools">
       <input id="lib-search" type="search" data-i18n-ph="searchLibrary" placeholder="Search library" />
+      <select id="lib-sort" aria-label="Sort">
+        <option value="recent" data-i18n="sortRecent">Recently read</option>
+        <option value="added" data-i18n="sortAdded">Recently added</option>
+        <option value="title" data-i18n="sortTitle">Title</option>
+      </select>
     </div>
+    <div id="chips" class="chips"></div>
     <section id="shelf" class="shelf"></section>
     <section id="empty" class="empty" hidden>
       <div class="empty-art">📖</div>
@@ -64,11 +70,13 @@
         <div class="tabs">
           <button class="tab active" data-tab="toc" data-i18n="contents">Contents</button>
           <button class="tab" data-tab="marks" data-i18n="bookmarks">Bookmarks</button>
+          <button class="tab" data-tab="notes" data-i18n="notes">Notes</button>
         </div>
         <button class="btn icon close" data-close>✕</button>
       </div>
       <div id="toc-list" class="list"></div>
       <div id="marks-list" class="list" hidden></div>
+      <div id="notes-list" class="list" hidden></div>
     </aside>
 
     <aside id="panel-search" class="panel" hidden>
@@ -90,6 +98,33 @@
     </aside>
   </main>
 
+  <div id="pop" class="pop" hidden>
+    <div class="swatches" id="pop-swatches"></div>
+    <div class="pop-acts">
+      <button data-act="note" title="Note">✎</button>
+      <button data-act="copy" title="Copy">⧉</button>
+      <button data-act="dict" title="Dictionary">أ</button>
+      <button data-act="find" title="Search">⌕</button>
+      <button data-act="del" title="Delete">🗑</button>
+    </div>
+  </div>
+
+  <dialog id="ask">
+    <form method="dialog">
+      <h3 id="ask-title"></h3>
+      <input id="ask-input" list="ask-list" dir="auto" autocomplete="off" />
+      <datalist id="ask-list"></datalist>
+      <textarea id="ask-text" rows="5" dir="auto"></textarea>
+      <div class="dlg-btns">
+        <button value="del" id="ask-del" class="btn danger" data-i18n="delete">Delete</button>
+        <span class="grow"></span>
+        <button value="cancel" class="btn" data-i18n="cancel">Cancel</button>
+        <button value="ok" class="btn primary" data-i18n="save">Save</button>
+      </div>
+    </form>
+  </dialog>
+
+  <div id="busy" class="busy" hidden><div class="spinner"></div><div id="busy-text"></div></div>
   <div id="toast" class="toast" hidden></div>
   <script type="module" src="/src/main.js"></script>
 </body>
