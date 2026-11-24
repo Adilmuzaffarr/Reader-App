@@ -23,6 +23,9 @@ const dict = {
     noText: 'This PDF has no readable text (it is scanned, or uses a custom Urdu font encoding), so it cannot be converted without OCR.',
     pdfNotesHint: 'Highlights and notes work in EPUB books. Convert this PDF to EPUB to use them.', convertedFrom: 'EPUB copy',
     ago: 'Read', never: '', lastRead: 'Read',
+    ocrOffer: 'This PDF has no readable text layer (it is scanned or uses a special font encoding).\n\nRun OCR (text recognition) instead? It runs on your device and can take a while for long books. Printed Naskh text recognises well; Nastaliq and poor scans will contain errors, so check the result.',
+    ocrLoading: 'Loading Urdu recognition data…', ocrRunning: 'Recognising text', ocrDone: 'Converted with OCR — please proofread, errors are possible',
+    ocrEmpty: 'OCR could not find any text in this PDF.', convertOcr: 'Convert with OCR', cancelled: 'Cancelled',
   },
   ur: {
     appName: 'اردو ریڈر', addBooks: 'کتابیں شامل کریں', searchLibrary: 'لائبریری میں تلاش کریں',
@@ -48,6 +51,9 @@ const dict = {
     noText: 'اس PDF میں پڑھنے کے قابل متن نہیں ہے (یہ اسکین شدہ ہے یا مخصوص اردو انکوڈنگ استعمال کرتی ہے)، اس لیے OCR کے بغیر تبدیل نہیں ہو سکتی۔',
     pdfNotesHint: 'ہائی لائٹس اور نوٹس EPUB کتابوں میں کام کرتے ہیں۔ انہیں استعمال کرنے کے لیے اس PDF کو EPUB میں تبدیل کریں۔', convertedFrom: 'EPUB نقل',
     ago: 'پڑھی', never: '', lastRead: 'پڑھی',
+    ocrOffer: 'اس PDF میں پڑھنے کے قابل متن نہیں ہے (یہ اسکین شدہ ہے یا مخصوص انکوڈنگ استعمال کرتی ہے)۔\n\nکیا OCR (متن کی شناخت) چلائیں؟ یہ آپ کے آلے پر چلتا ہے اور لمبی کتابوں میں وقت لگ سکتا ہے۔ چھپا ہوا نسخ متن اچھا پہچانا جاتا ہے؛ نستعلیق اور کمزور اسکین میں غلطیاں ہوں گی، اس لیے نتیجہ ضرور دیکھ لیں۔',
+    ocrLoading: 'اردو شناخت کا ڈیٹا لوڈ ہو رہا ہے…', ocrRunning: 'متن پہچانا جا رہا ہے', ocrDone: 'OCR سے تبدیل ہو گئی — براہِ کرم پروف ریڈنگ کریں، غلطیاں ممکن ہیں',
+    ocrEmpty: 'OCR کو اس PDF میں کوئی متن نہیں ملا۔', convertOcr: 'OCR سے تبدیل کریں', cancelled: 'منسوخ کر دیا گیا',
   },
 };
 

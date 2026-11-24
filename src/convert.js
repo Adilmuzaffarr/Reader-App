@@ -12,15 +12,15 @@ const tick = () => new Promise((r) => setTimeout(r));
 const median = (a) => { if (!a.length) return 0; const s = [...a].sort((x, y) => x - y); return s[s.length >> 1]; };
 const esc = (s) => s.replace(CTRL, '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 
-export async function pdfToEpub(blob, { title, author, lang, onProgress = () => {} }) {
+export async function pdfToEpub(blob, { title, author, lang, onProgress = () => {}, ocr = false, signal }) {
   const task = pdfjs.getDocument({ data: new Uint8Array(await blob.arrayBuffer()) });
   const pdf = await task.promise;
   const n = pdf.numPages;
   let chars = 0, bad = 0, ar = 0, la = 0;
-  const pages = [];
+  let pages = [];
 
-  // 1. read every page into visual lines
-  for (let p = 1; p <= n; p++) {
+  // 1. read every page into visual lines (text layer, or OCR)
+  for (let p = 1; p <= n && !ocr; p++) {
     const page = await pdf.getPage(p);
     const items = [];
     for (const i of (await page.getTextContent()).items) {
@@ -37,15 +37,24 @@ export async function pdfToEpub(blob, { title, author, lang, onProgress = () => 
     if (p % 3 === 0) await tick();
   }
 
-  if (chars < 15 * n || bad / Math.max(1, chars) > 0.2) {
+  if (!ocr && (chars < 15 * n || bad / Math.max(1, chars) > 0.2)) {
     task.destroy();
     throw Object.assign(new Error('no-text'), { code: 'noText' });
+  }
+  if (ocr) {
+    try {
+      const { ocrPdfPages } = await import('./ocr.js');
+      pages = await ocrPdfPages(pdf, { onProgress, signal });
+    } catch (e) { task.destroy(); throw e; }
+    const all = pages.flatMap((p) => p.lines.map((l) => l.text)).join('');
+    ar = (all.match(AR) || []).length; la = (all.match(/[A-Za-z]/g) || []).length;
+    if (all.replace(/\s/g, '').length < 10 * n) { task.destroy(); throw Object.assign(new Error('ocr-empty'), { code: 'ocrEmpty' }); }
   }
   const rtl = ar > la;
   const labels = rtl ? { start: 'آغاز', pages: 'صفحات', contents: 'فہرست' } : { start: 'Start', pages: 'Pages', contents: 'Contents' };
 
   // 2. items → lines (reading order)
-  for (const pg of pages) {
+  for (const pg of ocr ? [] : pages) {
     const its = pg.items.sort((a, b) => b.y - a.y);
     const lines = [];
     for (const it of its) {
@@ -68,7 +77,8 @@ export async function pdfToEpub(blob, { title, author, lang, onProgress = () => 
     }).filter((l) => l.text).sort((a, b) => b.y - a.y);
   }
 
-  // 3. strip running headers/footers and bare page numbers
+  // 3. strip running headers/footers and bare page numbers (never large heading-sized lines)
+  const mh = median(pages.flatMap((p) => p.lines.map((l) => l.h)));
   const key = (t) => t.replace(DIGITS, '#').trim();
   const freq = new Map();
   for (const pg of pages) {
@@ -79,12 +89,12 @@ export async function pdfToEpub(blob, { title, author, lang, onProgress = () => 
     pg.lines = pg.lines.filter((l) => {
       if (!edge.has(l)) return true;
       const k = key(l.text);
+      if (l.h >= mh * 1.3) return true;
       return !(k === '#' || (n >= 4 && (freq.get(k) || 0) >= 0.4 * n));
     });
   }
 
   // 4. lines → paragraphs & headings
-  const mh = median(pages.flatMap((p) => p.lines.map((l) => l.h)));
   const blocks = []; // {type:'p'|'h', text, h, page}
   let cur = null;
   const flush = () => { if (cur) blocks.push(cur); cur = null; };
@@ -93,7 +103,7 @@ export async function pdfToEpub(blob, { title, author, lang, onProgress = () => 
     const gaps = pg.lines.slice(1).map((l, i) => pg.lines[i].y - l.y).filter((g) => g > 0);
     const lead = median(gaps) || mh * 1.3;
     pg.lines.forEach((l, i) => {
-      const isHead = l.h >= mh * 1.35 && l.text.length <= 120;
+      const isHead = ocr ? l.h >= mh * 1.45 && l.text.length <= 60 : l.h >= mh * 1.35 && l.text.length <= 120;
       const prev = pg.lines[i - 1];
       if (isHead) {
         if (cur?.type === 'h' && Math.abs(cur.h - l.h) < 1) cur.text += ' ' + l.text;
@@ -111,7 +121,9 @@ export async function pdfToEpub(blob, { title, author, lang, onProgress = () => 
 
   // 5. chapters: split on the largest headings, otherwise every 8 pages
   const heads = blocks.filter((b) => b.type === 'h');
-  const top = Math.max(0, ...heads.map((h) => h.h));
+  const hs = heads.map((h) => h.h).sort((a, b) => a - b);
+  // OCR box heights are noisy, so use a high percentile instead of the single largest
+  const top = ocr ? hs[Math.floor(hs.length * 0.75)] || 0 : Math.max(0, ...hs);
   const isChap = (b) => b.type === 'h' && b.h >= top * 0.85;
   let sections = [];
   if (blocks.filter(isChap).length >= 2) {

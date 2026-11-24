@@ -420,7 +420,7 @@ function renderNotes() {
   const box = $('#notes-list');
   if (reader.kind === 'pdf') {
     box.innerHTML = `<p class="hint">${t('pdfNotesHint')}<br><button class="btn primary" id="n-conv">${t('convertEpub')}</button></p>`;
-    $('#n-conv').onclick = convertFromReader;
+    $('#n-conv').onclick = () => convertFromReader();
     return;
   }
   const list = [...(current.annots || [])].sort((a, b) => (a.pct ?? 0) - (b.pct ?? 0) || a.ts - b.ts);
@@ -482,27 +482,40 @@ function ask({ title, value = '', placeholder = '', multi = false, list = [], ca
 }
 
 /* ---------- PDF → EPUB ---------- */
-function busy(on, text = '') { $('#busy').hidden = !on; $('#busy-text').textContent = text; }
+function busy(on, text = '', onCancel = null) {
+  $('#busy').hidden = !on; $('#busy-text').textContent = text;
+  const c = $('#busy-cancel'); c.hidden = !onCancel; c.onclick = onCancel;
+}
 
-async function convertBook(id) {
+async function convertBook(id, { ocr = false } = {}) {
   const meta = await db.getBook(id), blob = await db.getFile(id);
   if (!meta || !blob) return null;
-  busy(true, `${t('converting')}…`);
+  const ctl = new AbortController();
+  const cancel = ocr ? () => ctl.abort() : null;
+  busy(true, `${t('converting')}…`, cancel);
   try {
-    const res = await pdfToEpub(blob, { title: meta.title, author: meta.author, onProgress: (p) => busy(true, `${t('converting')} ${Math.round(p * 100)}%`) });
+    const res = await pdfToEpub(blob, {
+      title: meta.title, author: meta.author, ocr, signal: ctl.signal,
+      onProgress: (p, phase) => busy(true, phase === 'load' ? t('ocrLoading')
+        : `${t(phase === 'ocr' ? 'ocrRunning' : 'converting')} ${Math.round(p * 100)}%`, cancel),
+    });
     const file = new File([res.blob], `${meta.title}.epub`, { type: 'application/epub+zip' });
     const newId = await importFiles([file], { category: meta.category || '' });
-    toast(t('converted'));
+    toast(t(ocr ? 'ocrDone' : 'converted'));
     return newId;
   } catch (e) {
-    if (e?.code === 'noText') alert(t('noText')); else { console.error(e); toast(t('failed')); }
+    busy(false);
+    if (e?.code === 'noText') return confirm(t('ocrOffer')) ? convertBook(id, { ocr: true }) : null;
+    if (e?.code === 'aborted') toast(t('cancelled'));
+    else if (e?.code === 'ocrEmpty') alert(t('ocrEmpty'));
+    else { console.error(e); toast(t('failed')); }
     return null;
   } finally { busy(false); }
 }
 
-async function convertFromReader() {
+async function convertFromReader(opts) {
   closePanels();
-  const id = await convertBook(current.id);
+  const id = await convertBook(current.id, opts?.ocr ? { ocr: true } : {});
   if (id) { await closeReader(); openBook(id); }
 }
 
@@ -520,7 +533,7 @@ function buildSettings() {
   body.innerHTML = `
     ${isPdf ? `<p class="hint">${t('pdfNote')}</p>
       <label class="field"><span>${t('pdfZoom')}</span><input type="range" id="s-zoom" min="0.6" max="2.5" step="0.1" value="${reader.zoom}"></label>
-      <div class="field"><button class="btn primary" id="s-convert">${t('convertEpub')}</button><p class="hint" style="padding:0">${t('convertHint')}</p></div>`
+      <div class="field"><button class="btn primary" id="s-convert">${t('convertEpub')}</button><button class="btn" id="s-ocr">${t('convertOcr')}</button><p class="hint" style="padding:0">${t('convertHint')}</p></div>`
     : `<div class="field"><span>${t('font')}</span><div class="fonts" data-name="font">${fontBtns}</div></div>
       <label class="field"><span>${t('fontSize')}</span><input type="range" id="s-size" min="14" max="44" step="1" value="${settings.fontSize}"></label>
       <label class="field"><span>${t('lineHeight')}</span><input type="range" id="s-lh" min="1.3" max="3.2" step="0.1" value="${settings.lineHeight}"></label>
@@ -532,7 +545,8 @@ function buildSettings() {
         `<button data-v="${k}" class="theme-opt th-${k} ${settings.theme === k ? 'on' : ''}">${t(k)}</button>`).join('')}</div></div>
     <div class="field"><span>${t('direction')}</span>${seg('dir', [['auto', t('auto')], ['rtl', t('rtl')], ['ltr', t('ltr')]], current.rtl || 'auto')}</div>`;
 
-  $('#s-convert')?.addEventListener('click', convertFromReader);
+  $('#s-convert')?.addEventListener('click', () => convertFromReader());
+  $('#s-ocr')?.addEventListener('click', () => convertFromReader({ ocr: true }));
   $('#s-zoom')?.addEventListener('change', (e) => reader.setZoom(+e.target.value));
   const live = () => reader.applySettings(settings);
   $('#s-size')?.addEventListener('input', (e) => { settings.fontSize = +e.target.value; saveSettings(); live(); });

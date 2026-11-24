@@ -183,3 +183,5 @@ dialog input,dialog textarea{width:100%;padding:10px 12px;border:1px solid var(-
   background:linear-gradient(90deg,transparent,rgba(0,0,0,.13) 48%,rgba(0,0,0,.2) 50%,rgba(0,0,0,.13) 52%,transparent)}
 :root[data-theme=dark] .viewer.spread::after,:root[data-theme=black] .viewer.spread::after{background:linear-gradient(90deg,transparent,rgba(0,0,0,.45) 50%,transparent)}
 .viewer.spread::before{content:'';position:absolute;inset:0;z-index:0;pointer-events:none}
+#s-convert,#s-ocr{width:100%}
+#s-ocr{margin-top:-4px}

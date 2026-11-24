@@ -9,6 +9,13 @@ export default defineConfig({
       registerType: 'autoUpdate',
       workbox: {
         globPatterns: ['**/*.{js,css,html,woff2,svg,png,mjs}'],
+        globIgnores: ['ocr/**'],
+        // OCR engine is large: cache it the first time it is used instead of precaching.
+        runtimeCaching: [{
+          urlPattern: ({ url }) => url.pathname.includes('/ocr/'),
+          handler: 'CacheFirst',
+          options: { cacheName: 'ocr-assets', expiration: { maxEntries: 10 } },
+        }],
         maximumFileSizeToCacheInBytes: 8 * 1024 * 1024,
       },
       manifest: {
