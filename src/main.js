@@ -5,6 +5,8 @@ import * as db from './db.js';
 import { EpubReader, HL, HL_COLORS } from './epub-reader.js';
 import { pdfToEpub } from './convert.js';
 import { initDoodles } from './doodle-ui.js';
+import { applyIcons, icon } from './icons.js';
+import { stampThumb } from './doodle.js';
 import { PdfReader, pdfCover } from './pdf-reader.js';
 import ePub from 'epubjs';
 
@@ -320,7 +322,6 @@ function buildMarks() {
 function updateMarkIcon() {
   const here = lastProgress?.location;
   const has = here && (current?.marks || []).some((m) => m.target === (reader.kind === 'pdf' ? Number(here) : here));
-  $('#mark-btn').textContent = has ? '★' : '☆';
   $('#mark-btn').classList.toggle('on', !!has);
 }
 
@@ -403,10 +404,11 @@ async function editNote(a) {
 }
 
 function showFrameRow() {
-  const names = { hearts: '♡ ♡ ♡', scallop: '◌ ◌ ◌', dash: '╌ ╌ ╌' };
+  const bubbles = '<svg viewBox="0 0 60 28" width="54" height="26" fill="none" stroke="currentColor" stroke-width="1.8">' + [6, 16, 26, 36, 46, 54].map((x, i) => `<circle cx="${x}" cy="${14 + (i % 2 ? 2 : -2)}" r="4.6"/>`).join('') + '</svg>';
+  const icons = { hearts: stampThumb('trail', 'ink', settings.theme), bubbles, sparkles: stampThumb('sparkle', 'ink', settings.theme) };
   $('#pop-swatches').replaceChildren(...doodles.FRAME_STYLES.map((s) => {
     const b = document.createElement('button');
-    b.className = 'fr'; b.dataset.style = s; b.textContent = names[s];
+    b.className = 'fr'; b.dataset.style = s; b.innerHTML = icons[s]; b.setAttribute('aria-label', s);
     return b;
   }));
 }
@@ -601,6 +603,7 @@ function init() {
   applyTheme();
   applyMargin();
   applyI18n();
+  applyIcons();
 
   const input = $('#file-input');
   const pick = () => input.click();

@@ -41,14 +41,14 @@
   <!-- READER -->
   <main id="reader" class="view" hidden>
     <header class="bar reader-bar" id="reader-top">
-      <button id="back-btn" class="btn icon" aria-label="Back">←</button>
+      <button id="back-btn" class="btn icon" aria-label="Back" data-icon="back"></button>
       <div class="reader-title" id="reader-title"></div>
       <div class="bar-actions">
-        <button id="toc-btn" class="btn icon" aria-label="Contents">☰</button>
-        <button id="search-btn" class="btn icon" aria-label="Search">⌕</button>
-        <button id="mark-btn" class="btn icon" aria-label="Bookmark">☆</button>
-        <button id="doodle-btn" class="btn icon" aria-label="Doodle" data-i18n-title="doodle" title="Doodle">✿</button>
-        <button id="set-btn" class="btn icon" aria-label="Settings">Aa</button>
+        <button id="toc-btn" class="btn icon" aria-label="Contents" data-icon="menu"></button>
+        <button id="search-btn" class="btn icon" aria-label="Search" data-icon="search"></button>
+        <button id="mark-btn" class="btn icon" aria-label="Bookmark" data-icon="bookmark"></button>
+        <button id="doodle-btn" class="btn icon" aria-label="Doodle" data-i18n-title="doodle" title="Doodle" data-icon="doodle"></button>
+        <button id="set-btn" class="btn icon" aria-label="Settings" data-icon="type"></button>
       </div>
     </header>
 
@@ -68,21 +68,23 @@
 
     <div id="stamp-tray" class="stamp-tray" hidden></div>
     <footer id="doodle-bar" class="doodle-bar" hidden>
-      <div class="dd-row">
-        <button data-tool="hand" class="dd-b" data-i18n-title="doodleHand" title="Move">✋</button>
-        <button data-tool="pen" class="dd-b on" data-i18n-title="doodlePen" title="Pen">✎</button>
-        <button data-tool="marker" class="dd-b" data-i18n-title="doodleMarker" title="Marker">🖍</button>
-        <button data-tool="stamp" class="dd-b" data-i18n-title="doodleStamp" title="Stamps">♥</button>
-        <button data-tool="eraser" class="dd-b" data-i18n-title="doodleEraser" title="Eraser">⌫</button>
+      <button id="dd-fold" class="dd-fold" aria-label="Collapse toolbar"></button>
+      <div class="dd-tools">
+        <button data-tool="hand" class="dd-b" data-icon="hand" data-i18n-title="doodleHand" title="Move"></button>
+        <button data-tool="pen" class="dd-b on" data-icon="pen" data-i18n-title="doodlePen" title="Pen"></button>
+        <button data-tool="marker" class="dd-b" data-icon="marker" data-i18n-title="doodleMarker" title="Marker"></button>
+        <button data-tool="stamp" class="dd-b" data-icon="heart" data-i18n-title="doodleStamp" title="Stamps"></button>
+        <button data-tool="eraser" class="dd-b" data-icon="eraser" data-i18n-title="doodleEraser" title="Eraser"></button>
         <span class="dd-sep"></span>
-        <button id="dd-undo" class="dd-b" data-i18n-title="doodleUndo" title="Undo">↶</button>
-        <button id="dd-prev" class="dd-b" data-i18n-title="doodlePrev" title="Previous page">‹</button>
-        <button id="dd-next" class="dd-b" data-i18n-title="doodleNext" title="Next page">›</button>
-        <button id="dd-done" class="btn primary dd-done" data-i18n-title="doodleDone" title="Done" aria-label="Done">✓</button>
+        <button id="dd-undo" class="dd-b" data-icon="undo" data-i18n-title="doodleUndo" title="Undo"></button>
+        <button id="dd-done" class="dd-done" data-icon="check" data-i18n-title="doodleDone" title="Done" aria-label="Done"></button>
       </div>
-      <div class="dd-row">
-        <div id="dd-colors" class="dd-colors"></div>
-        <label class="dd-size"><input type="range" id="dd-size" min="1" max="14" step="1"></label>
+      <div id="dd-colors" class="dd-colors"></div>
+      <div class="dd-bottom">
+        <div id="dd-sizewrap" class="dd-sizewrap"><span class="dd-dotbox"><i id="dd-dot"></i></span><input type="range" id="dd-size" min="1" max="14" step="1"></div>
+        <span class="dd-sep"></span>
+        <button id="dd-prev" class="dd-b sm" data-icon="left" data-i18n-title="doodlePrev" title="Previous page"></button>
+        <button id="dd-next" class="dd-b sm" data-icon="right" data-i18n-title="doodleNext" title="Next page"></button>
       </div>
     </footer>
 
@@ -94,7 +96,7 @@
           <button class="tab" data-tab="marks" data-i18n="bookmarks">Bookmarks</button>
           <button class="tab" data-tab="notes" data-i18n="notes">Notes</button>
         </div>
-        <button class="btn icon close" data-close>✕</button>
+        <button class="btn icon close" data-close data-icon="x"></button>
       </div>
       <div id="toc-list" class="list"></div>
       <div id="marks-list" class="list" hidden></div>
@@ -106,7 +108,7 @@
         <form id="search-form" class="search-form">
           <input id="search-input" type="search" data-i18n-ph="searchBook" placeholder="Search in book" />
         </form>
-        <button class="btn icon close" data-close>✕</button>
+        <button class="btn icon close" data-close data-icon="x"></button>
       </div>
       <div id="search-list" class="list"></div>
     </aside>
@@ -114,7 +116,7 @@
     <aside id="panel-settings" class="sheet" hidden>
       <div class="panel-head">
         <strong data-i18n="display">Display</strong>
-        <button class="btn icon close" data-close>✕</button>
+        <button class="btn icon close" data-close data-icon="x"></button>
       </div>
       <div id="settings-body" class="settings-body"></div>
     </aside>
@@ -123,12 +125,12 @@
   <div id="pop" class="pop" hidden>
     <div class="swatches" id="pop-swatches"></div>
     <div class="pop-acts">
-      <button data-act="note" title="Note">✎</button>
-      <button data-act="copy" title="Copy">⧉</button>
-      <button data-act="dict" title="Dictionary">أ</button>
-      <button data-act="find" title="Search">⌕</button>
-      <button data-act="frame" title="Frame">❀</button>
-      <button data-act="del" title="Delete">🗑</button>
+      <button data-act="note" title="Note" data-icon="note" data-size="20"></button>
+      <button data-act="copy" title="Copy" data-icon="copy" data-size="20"></button>
+      <button data-act="dict" title="Dictionary" data-icon="book" data-size="20"></button>
+      <button data-act="find" title="Search" data-icon="search" data-size="20"></button>
+      <button data-act="frame" title="Frame" data-icon="frame" data-size="20"></button>
+      <button data-act="del" title="Delete" data-icon="trash" data-size="20"></button>
     </div>
   </div>
 

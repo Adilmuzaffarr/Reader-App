@@ -186,26 +186,48 @@ dialog input,dialog textarea{width:100%;padding:10px 12px;border:1px solid var(-
 #s-convert,#s-ocr{width:100%}
 #s-ocr{margin-top:-4px}
 
+/* icons */
+.ic{display:block}
+.btn.icon{color:color-mix(in srgb,var(--fg) 88%,transparent)}
+#mark-btn.on{color:#d99a00}
+#mark-btn.on .ic{fill:currentColor}
+
 /* doodles */
 .ink{position:absolute;inset:0;z-index:6;touch-action:none;cursor:crosshair}
 .ink svg{width:100%;height:100%;pointer-events:none;overflow:visible}
-#reader[data-tool=hand] .ink{pointer-events:none}
-#reader[data-tool=eraser] .ink{cursor:cell}
+#reader[data-dtool=hand] .ink{pointer-events:none}
+#reader[data-dtool=eraser] .ink{cursor:cell}
 #reader.doodling .reader-foot{display:none}
-.doodle-bar{position:absolute;left:0;right:0;bottom:0;z-index:12;background:var(--surface);border-top:1px solid var(--line);padding:8px 10px max(8px,env(safe-area-inset-bottom));box-shadow:0 -4px 18px rgba(0,0,0,.12)}
-.dd-row{display:flex;align-items:center;gap:6px;max-width:640px;margin:0 auto}
-.dd-row+.dd-row{margin-top:8px}
-.dd-b{width:38px;height:40px;border-radius:12px;border:1px solid transparent;background:transparent;font-size:1.15rem;display:grid;place-items:center;flex:none}
-.dd-b.on{background:color-mix(in srgb,var(--accent) 18%,transparent);border-color:var(--accent)}
+
+.doodle-bar{position:absolute;z-index:12;left:50%;transform:translateX(-50%);bottom:max(10px,env(safe-area-inset-bottom));width:min(480px,calc(100% - 16px));
+  background:color-mix(in srgb,var(--surface) 96%,transparent);backdrop-filter:blur(14px);border:1px solid var(--line);border-radius:24px;
+  box-shadow:0 12px 40px rgba(0,0,0,.2),0 2px 6px rgba(0,0,0,.08);padding:10px 12px 10px;display:flex;flex-direction:column;gap:10px}
+.dd-fold{align-self:center;width:56px;height:18px;border:0;background:transparent;display:grid;place-items:center;margin:-8px 0 -6px;cursor:pointer}
+.dd-fold::before{content:'';width:38px;height:4px;border-radius:3px;background:color-mix(in srgb,var(--fg) 22%,transparent)}
+.doodle-bar.folded .dd-colors,.doodle-bar.folded .dd-bottom{display:none}
+.doodle-bar.folded{gap:6px}
+.dd-tools,.dd-bottom{display:flex;align-items:center;gap:4px}
 .dd-sep{flex:1}
-.dd-done{width:42px;height:40px;padding:0;flex:none;font-size:1.1rem;border-radius:12px}
-.dd-colors{display:flex;gap:7px;flex:1;overflow-x:auto;scrollbar-width:none;padding:2px}
-.dd-c{width:26px;height:26px;border-radius:50%;border:2px solid var(--line);flex:none;padding:0}
-.dd-c.on{border-color:var(--fg);box-shadow:0 0 0 2px var(--surface) inset}
-.dd-size{width:110px;flex:none}
-.dd-size input{width:100%;accent-color:var(--accent)}
-.stamp-tray{position:absolute;z-index:13;left:50%;transform:translateX(-50%);bottom:calc(112px + env(safe-area-inset-bottom));display:grid;grid-template-columns:repeat(6,1fr);gap:4px;padding:8px;background:var(--surface);border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow);width:min(350px,94vw)}
-.stamp{border:1px solid transparent;border-radius:10px;background:transparent;padding:4px;display:grid;place-items:center}
+.dd-b{width:42px;height:42px;border-radius:14px;border:0;background:transparent;display:grid;place-items:center;color:var(--fg);flex:none;transition:background .15s,color .15s}
+.dd-b:hover{background:color-mix(in srgb,var(--fg) 7%,transparent)}
+.dd-b.on{background:var(--accent);color:var(--accent-fg)}
+.dd-b.sm{width:36px;height:36px;border-radius:12px;border:1px solid var(--line)}
+.dd-done{width:42px;height:42px;border-radius:50%;border:0;background:var(--fg);color:var(--surface);display:grid;place-items:center;flex:none;margin-inline-start:4px}
+.dd-colors{display:flex;justify-content:space-between;padding:2px 4px}
+.dd-c{width:30px;height:30px;border-radius:50%;border:0;padding:0;background:var(--c);box-shadow:inset 0 0 0 1px rgba(0,0,0,.16);flex:none;transition:transform .12s}
+.dd-c.on{transform:scale(1.08);box-shadow:0 0 0 2.5px var(--surface),0 0 0 4.5px var(--fg)}
+.dd-sizewrap{display:flex;align-items:center;gap:10px;flex:1;min-width:0}
+.dd-dotbox{width:34px;height:34px;display:grid;place-items:center;flex:none;border-radius:10px;background:color-mix(in srgb,var(--fg) 6%,transparent)}
+.dd-dotbox i{display:block;border-radius:50%;background:var(--fg)}
+.dd-sizewrap input{flex:1;min-width:0;accent-color:var(--accent)}
+
+.stamp-tray{position:absolute;z-index:13;left:50%;transform:translateX(-50%);bottom:176px;display:grid;grid-template-columns:repeat(4,1fr);gap:6px;padding:10px;
+  background:var(--surface);border:1px solid var(--line);border-radius:20px;box-shadow:0 12px 40px rgba(0,0,0,.22);width:min(320px,calc(100% - 24px))}
+.stamp{border:1.5px solid transparent;border-radius:14px;background:color-mix(in srgb,var(--fg) 4%,transparent);padding:6px;display:grid;place-items:center;aspect-ratio:1}
+.stamp svg{width:100%;height:100%;max-width:58px;overflow:visible}
 .stamp.on{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 12%,transparent)}
-.pop .fr{border:1px solid var(--line);background:var(--bg);border-radius:10px;padding:6px 10px;letter-spacing:.1em}
+
+.pop-acts button{color:var(--fg)}
+.pop .fr{border:1px solid var(--line);background:var(--bg);border-radius:12px;padding:4px 8px;color:var(--fg);display:grid;place-items:center}
+.pop .fr svg{width:44px;height:30px;overflow:visible}
 #pop-swatches:has(.fr){gap:6px}
