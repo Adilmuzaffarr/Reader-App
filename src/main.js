@@ -4,6 +4,7 @@ import { t, getLang, setLang, applyI18n } from './i18n.js';
 import * as db from './db.js';
 import { EpubReader, HL, HL_COLORS } from './epub-reader.js';
 import { pdfToEpub } from './convert.js';
+import { initDoodles } from './doodle-ui.js';
 import { PdfReader, pdfCover } from './pdf-reader.js';
 import ePub from 'epubjs';
 
@@ -189,6 +190,7 @@ async function openBook(id, { fromPop = false } = {}) {
   $('#reader-title').dir = 'auto';
   setLoading(true);
   closePanels();
+  doodles?.exit();
   showChrome(true);
   if (!fromPop) history.pushState({ reader: id }, '');
   try {
@@ -208,6 +210,8 @@ async function mountReader(blob, location) {
   reader = new Cls($('#viewer'), { onProgress, onTap, onSelect, onHighlight });
   await reader.open(blob, { settings, location, rtl: current.rtl, annots: current.annots || [] });
   updateSpread();
+  reader.onLayout = () => doodles?.redraw();
+  setTimeout(() => doodles?.redraw(), 450);
   $('#seek').dir = reader.rtl ? 'rtl' : 'ltr';
   $('#seek').classList.toggle('rtl', !!reader.rtl);
   $('#reader').dataset.dir = reader.rtl ? 'rtl' : 'ltr';
@@ -239,6 +243,7 @@ function onProgress(p) {
 }
 
 function onTap(side) {
+  if (doodles?.isOn()) { if (side !== 'center') reader.step(side); return; }
   const scrolling = reader.kind === 'epub' && settings.layout === 'scroll';
   if (side === 'center' || scrolling) return toggleChrome();
   closePanels();
@@ -254,6 +259,7 @@ function showChrome(on) {
 const toggleChrome = () => { if (anyPanelOpen()) return closePanels(); showChrome(!chromeShown); };
 
 async function closeReader() {
+  doodles?.flush(); doodles?.exit();
   if (reader) {
     if (lastProgress?.location) { current.location = lastProgress.location; await db.updateBook(current.id, { location: lastProgress.location, progress: lastProgress.pct ?? current.progress }); }
     reader.destroy(); reader = null;
@@ -336,6 +342,7 @@ async function toggleMark() {
 }
 
 /* ---------- highlights, notes, popover ---------- */
+let doodles = null;
 let popState = null;
 const hlColor = (c) => (HL[settings.theme] || HL.light)[c];
 
@@ -393,6 +400,23 @@ async function editNote(a) {
   else if (r.action === 'del') a.note = '';
   else return;
   await saveAnnots();
+}
+
+function showFrameRow() {
+  const names = { hearts: '♡ ♡ ♡', scallop: '◌ ◌ ◌', dash: '╌ ╌ ╌' };
+  $('#pop-swatches').replaceChildren(...doodles.FRAME_STYLES.map((s) => {
+    const b = document.createElement('button');
+    b.className = 'fr'; b.dataset.style = s; b.textContent = names[s];
+    return b;
+  }));
+}
+
+async function applyFrame(style) {
+  const st = popState; if (!st) return;
+  const cfi = st.mode === 'new' ? st.sel.cfiRange : current.annots.find((x) => x.id === st.id)?.cfi;
+  if (st.mode === 'new') { try { st.sel.contents.window.getSelection().removeAllRanges(); } catch { /* ignore */ } }
+  hidePop();
+  if (cfi) { doodles.addFrame(cfi, style); toast(t('frameAdded')); }
 }
 
 async function popAction(act) {
@@ -558,7 +582,7 @@ function buildSettings() {
     if (!b) return;
     const v = b.dataset.v, name = group.dataset.name;
     if (name === 'font') { settings.font = v; settings.lineHeight = FONTS[v].lh; saveSettings(); live(); }
-    else if (name === 'theme') { settings.theme = v; saveSettings(); applyTheme(); live(); if (!$('#notes-list').hidden) renderNotes(); }
+    else if (name === 'theme') { settings.theme = v; saveSettings(); applyTheme(); live(); doodles?.redraw(); if (!$('#notes-list').hidden) renderNotes(); }
     else if (name === 'layout') { settings.layout = v; saveSettings(); await remount(); }
     else if (name === 'spread') { settings.spread = v; saveSettings(); await remount(); }
     else if (name === 'dir') { current.rtl = v; await db.updateBook(current.id, { rtl: v }); await remount(); }
@@ -586,12 +610,14 @@ function init() {
   $('#lib-search').oninput = renderLibrary;
   $('#lib-sort').onchange = renderLibrary;
   $('#pop-swatches').addEventListener('click', async (e) => {
+    const fr = e.target.closest('.fr');
+    if (fr && popState) { await applyFrame(fr.dataset.style); return; }
     const c = e.target.closest('.sw')?.dataset.c; if (!c || !popState) return;
     const st = popState; hidePop();
     if (st.mode === 'new') await createAnnot(st.sel, c);
     else { const a = current.annots.find((x) => x.id === st.id); if (a) { a.color = c; await saveAnnots(); } }
   });
-  $$('#pop [data-act]').forEach((b) => (b.onclick = () => popAction(b.dataset.act)));
+  $$('#pop [data-act]').forEach((b) => (b.onclick = () => (b.dataset.act === 'frame' ? showFrameRow() : popAction(b.dataset.act))));
   document.addEventListener('pointerdown', (e) => { if (!e.target.closest('#pop')) { if (popState?.mode === 'edit') hidePop(); } });
   $('#lang-toggle').onclick = () => { setLang(getLang() === 'ur' ? 'en' : 'ur'); renderLibrary(); };
 
@@ -611,6 +637,12 @@ function init() {
   $('#search-btn').onclick = () => togglePanel('#panel-search', () => $('#search-input').focus());
   $('#set-btn').onclick = () => togglePanel('#panel-settings', buildSettings);
   $('#mark-btn').onclick = toggleMark;
+  doodles = initDoodles({
+    getReader: () => reader, getBook: () => current, getSettings: () => settings,
+    save: (id, list) => id && db.updateBook(id, { doodles: list }),
+    toast, t, closePanels, showChrome,
+  });
+  $('#doodle-btn').onclick = () => (doodles.isOn() ? doodles.exit() : doodles.enter());
   $$('[data-close]').forEach((b) => (b.onclick = closePanels));
   $$('.tab').forEach((tab) => (tab.onclick = () => {
     $$('.tab').forEach((x) => x.classList.toggle('active', x === tab));
@@ -634,7 +666,7 @@ function init() {
 
   window.addEventListener('keydown', (e) => {
     if (!reader || e.target.matches('input, textarea')) return;
-    if (e.key === 'Escape') return anyPanelOpen() ? closePanels() : $('#back-btn').click();
+    if (e.key === 'Escape') return doodles?.isOn() ? doodles.exit() : anyPanelOpen() ? closePanels() : $('#back-btn').click();
     reader.onKey(e);
   });
   window.addEventListener('popstate', () => { if (reader) closeReader(); });

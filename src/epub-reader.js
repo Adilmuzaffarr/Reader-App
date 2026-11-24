@@ -73,6 +73,7 @@ export class EpubReader {
       d.head.appendChild(style);
       style.textContent = this.css();
       this.bindInput(contents);
+      setTimeout(() => this.onLayout?.(), 80);
     });
 
     this.rendition.on('selected', (cfiRange, contents) => {
@@ -84,8 +85,11 @@ export class EpubReader {
         rect: { left: f.left + r.left, right: f.left + r.right, top: f.top + r.top, bottom: f.top + r.bottom },
       });
     });
+    this.rendition.on('resized', () => this.onLayout?.());
+    this.rendition.on('rendered', () => this.onLayout?.());
     this.rendition.on('relocated', (loc) => {
       this.onSelect(null);
+      setTimeout(() => this.onLayout?.(), 60);
       this.current = loc;
       this.emit(loc);
     });
@@ -141,6 +145,8 @@ img{${th.img}}
       if (el) el.textContent = this.css();
     });
     this.rendition?.resize?.();
+    setTimeout(() => this.onLayout?.(), 150);
+    setTimeout(() => this.onLayout?.(), 600);
   }
 
   // Taps (left/centre/right zones), swipes and keys inside the iframe.

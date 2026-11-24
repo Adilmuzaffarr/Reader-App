@@ -23,6 +23,9 @@ const dict = {
     noText: 'This PDF has no readable text (it is scanned, or uses a custom Urdu font encoding), so it cannot be converted without OCR.',
     pdfNotesHint: 'Highlights and notes work in EPUB books. Convert this PDF to EPUB to use them.', convertedFrom: 'EPUB copy',
     ago: 'Read', never: '', lastRead: 'Read',
+    doodle: 'Doodle', doodleHand: 'Move / turn pages', doodlePen: 'Pen', doodleMarker: 'Marker', doodleStamp: 'Stamps', doodleEraser: 'Eraser', doodleUndo: 'Undo',
+    doodlePrev: 'Previous page', doodleNext: 'Next page', doodleDone: 'Done', doodleScroll: 'Switch to Pages layout to doodle', doodleNoAnchor: 'Draw on the page text or page area',
+    frame: 'Frame', frameAdded: 'Frame added — use the eraser to remove it',
     ocrOffer: 'This PDF has no readable text layer (it is scanned or uses a special font encoding).\n\nRun OCR (text recognition) instead? It runs on your device and can take a while for long books. Printed Naskh text recognises well; Nastaliq and poor scans will contain errors, so check the result.',
     ocrLoading: 'Loading Urdu recognition data…', ocrRunning: 'Recognising text', ocrDone: 'Converted with OCR — please proofread, errors are possible',
     ocrEmpty: 'OCR could not find any text in this PDF.', convertOcr: 'Convert with OCR', cancelled: 'Cancelled',
@@ -51,6 +54,9 @@ const dict = {
     noText: 'اس PDF میں پڑھنے کے قابل متن نہیں ہے (یہ اسکین شدہ ہے یا مخصوص اردو انکوڈنگ استعمال کرتی ہے)، اس لیے OCR کے بغیر تبدیل نہیں ہو سکتی۔',
     pdfNotesHint: 'ہائی لائٹس اور نوٹس EPUB کتابوں میں کام کرتے ہیں۔ انہیں استعمال کرنے کے لیے اس PDF کو EPUB میں تبدیل کریں۔', convertedFrom: 'EPUB نقل',
     ago: 'پڑھی', never: '', lastRead: 'پڑھی',
+    doodle: 'ڈوڈل', doodleHand: 'حرکت / صفحہ پلٹیں', doodlePen: 'قلم', doodleMarker: 'مارکر', doodleStamp: 'اسٹیکر', doodleEraser: 'مٹائیں', doodleUndo: 'واپس',
+    doodlePrev: 'پچھلا صفحہ', doodleNext: 'اگلا صفحہ', doodleDone: 'مکمل', doodleScroll: 'ڈوڈل کے لیے صفحات والی ترتیب منتخب کریں', doodleNoAnchor: 'صفحے کے متن یا حصے پر بنائیں',
+    frame: 'فریم', frameAdded: 'فریم لگ گیا — ہٹانے کے لیے مٹانے والا استعمال کریں',
     ocrOffer: 'اس PDF میں پڑھنے کے قابل متن نہیں ہے (یہ اسکین شدہ ہے یا مخصوص انکوڈنگ استعمال کرتی ہے)۔\n\nکیا OCR (متن کی شناخت) چلائیں؟ یہ آپ کے آلے پر چلتا ہے اور لمبی کتابوں میں وقت لگ سکتا ہے۔ چھپا ہوا نسخ متن اچھا پہچانا جاتا ہے؛ نستعلیق اور کمزور اسکین میں غلطیاں ہوں گی، اس لیے نتیجہ ضرور دیکھ لیں۔',
     ocrLoading: 'اردو شناخت کا ڈیٹا لوڈ ہو رہا ہے…', ocrRunning: 'متن پہچانا جا رہا ہے', ocrDone: 'OCR سے تبدیل ہو گئی — براہِ کرم پروف ریڈنگ کریں، غلطیاں ممکن ہیں',
     ocrEmpty: 'OCR کو اس PDF میں کوئی متن نہیں ملا۔', convertOcr: 'OCR سے تبدیل کریں', cancelled: 'منسوخ کر دیا گیا',
@@ -73,6 +79,7 @@ export function applyI18n(root = document) {
   document.documentElement.lang = lang;
   document.documentElement.dir = lang === 'ur' ? 'rtl' : 'ltr';
   root.querySelectorAll('[data-i18n]').forEach((el) => { el.textContent = t(el.dataset.i18n); });
+  root.querySelectorAll('[data-i18n-title]').forEach((el) => { el.title = t(el.dataset.i18nTitle); });
   root.querySelectorAll('[data-i18n-ph]').forEach((el) => { el.placeholder = t(el.dataset.i18nPh); });
   const tg = document.getElementById('lang-toggle');
   if (tg) tg.textContent = lang === 'ur' ? 'English' : 'اردو';

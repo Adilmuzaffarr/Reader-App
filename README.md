@@ -10,6 +10,7 @@ An offline-capable web app (installable PWA) for reading **EPUB** and **PDF** bo
 - Contents, bookmarks, in-book search, reading-progress slider, resume where you left off.
 - Tap left/right edges, swipe, or arrow keys to turn pages; tap the centre to show/hide controls.
 - **Highlights & notes** (EPUB): select text → floating menu with 5 colours, note, copy, dictionary (Wiktionary) and in-book search. Highlight colours retune per theme. Tap a highlight to recolour, edit the note or delete. Notes tab lists everything; export to Markdown or copy.
+- **Doodles (✿ button):** pen, marker, 12 stamps (hearts, heart tower, sparkles, vine, flowers, dots…), eraser, undo, and a Hand tool to turn pages while the toolbar is open. Works on EPUB and PDF. In EPUBs, doodles attach to the nearby words and scale with text size; in PDFs they attach to the page position. **Frames:** select text → ❀ → heart-chain / scallop / dashed border around it.
 - **Reading layout:** adjustable margins, and a two-page spread with a centre gutter shadow on wide screens (RTL-aware).
 - **Library:** custom shelves/categories, filters (Reading / Unread / Finished), sort, "last read" times.
 - **PDF → EPUB:** rebuilds a PDF's text layer into a reflowable EPUB (RTL, chapters from headings or every 8 pages, cover from page 1, running headers/page numbers stripped) so fonts, highlights and notes work.

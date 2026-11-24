@@ -76,6 +76,7 @@ export class PdfReader {
       this.holders.push(h);
     }
     this.rendered.clear();
+    setTimeout(() => this.onLayout?.(), 0);
   }
 
   relayout() {
@@ -138,7 +139,8 @@ export class PdfReader {
       if (this.rendered.get(n) !== token) return; // released meanwhile
       holder.style.width = `${vp.width}px`;
       holder.style.height = `${vp.height}px`;
-      holder.replaceChildren(canvas);
+      holder.querySelector('canvas')?.remove();
+      holder.prepend(canvas);
     } catch (e) {
       if (e?.name !== 'RenderingCancelledException') this.rendered.delete(n);
     }
@@ -147,7 +149,7 @@ export class PdfReader {
   release(n) {
     this.rendered.get(n)?.task?.cancel();
     this.rendered.delete(n);
-    this.holders[n - 1]?.replaceChildren();
+    this.holders[n - 1]?.querySelector('canvas')?.remove();
   }
 
   next() { this.goTo((this.currentPage || 1) + 1); }

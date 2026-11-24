@@ -47,6 +47,7 @@
         <button id="toc-btn" class="btn icon" aria-label="Contents">☰</button>
         <button id="search-btn" class="btn icon" aria-label="Search">⌕</button>
         <button id="mark-btn" class="btn icon" aria-label="Bookmark">☆</button>
+        <button id="doodle-btn" class="btn icon" aria-label="Doodle" data-i18n-title="doodle" title="Doodle">✿</button>
         <button id="set-btn" class="btn icon" aria-label="Settings">Aa</button>
       </div>
     </header>
@@ -55,12 +56,33 @@
       <div id="viewer" class="viewer"></div>
       <div id="loading" class="loading" hidden></div>
     </div>
+    <div id="ink" class="ink" hidden><svg id="ink-live"></svg></div>
 
     <footer class="reader-foot" id="reader-bottom">
       <input id="seek" type="range" min="0" max="1000" value="0" />
       <div class="foot-row">
         <span id="foot-left"></span>
         <span id="foot-right"></span>
+      </div>
+    </footer>
+
+    <div id="stamp-tray" class="stamp-tray" hidden></div>
+    <footer id="doodle-bar" class="doodle-bar" hidden>
+      <div class="dd-row">
+        <button data-tool="hand" class="dd-b" data-i18n-title="doodleHand" title="Move">✋</button>
+        <button data-tool="pen" class="dd-b on" data-i18n-title="doodlePen" title="Pen">✎</button>
+        <button data-tool="marker" class="dd-b" data-i18n-title="doodleMarker" title="Marker">🖍</button>
+        <button data-tool="stamp" class="dd-b" data-i18n-title="doodleStamp" title="Stamps">♥</button>
+        <button data-tool="eraser" class="dd-b" data-i18n-title="doodleEraser" title="Eraser">⌫</button>
+        <span class="dd-sep"></span>
+        <button id="dd-undo" class="dd-b" data-i18n-title="doodleUndo" title="Undo">↶</button>
+        <button id="dd-prev" class="dd-b" data-i18n-title="doodlePrev" title="Previous page">‹</button>
+        <button id="dd-next" class="dd-b" data-i18n-title="doodleNext" title="Next page">›</button>
+        <button id="dd-done" class="btn primary dd-done" data-i18n-title="doodleDone" title="Done" aria-label="Done">✓</button>
+      </div>
+      <div class="dd-row">
+        <div id="dd-colors" class="dd-colors"></div>
+        <label class="dd-size"><input type="range" id="dd-size" min="1" max="14" step="1"></label>
       </div>
     </footer>
 
@@ -105,6 +127,7 @@
       <button data-act="copy" title="Copy">⧉</button>
       <button data-act="dict" title="Dictionary">أ</button>
       <button data-act="find" title="Search">⌕</button>
+      <button data-act="frame" title="Frame">❀</button>
       <button data-act="del" title="Delete">🗑</button>
     </div>
   </div>
